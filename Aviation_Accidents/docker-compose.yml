@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16
+    container_name: pg-aviation
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aviation_db
+    ports:
+      - "5440:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aviation_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  etl:
+    build: .
+    container_name: etl-cron
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: aviation_db
+      DB_USER: postgres
+      DB_PASS: postgres
+
+      # ETL parameters (μπορείς να τα αλλάξεις)
+      YEAR_START: 2000
+      YEAR_END: 2025
+      POLITE_SLEEP: 0.25
+      TABLE_NAME: plane
+
+volumes:
+  pgdata:

@@ -1,0 +1,16 @@
+==--==--==--==--==--==--==--==--==--==--==
+#start the containters
+==--==--==--==--==--==--==--==--==--==--==
+docker compose up -d
+==--==--==--==--==--==--==--==--==--==--==
+#run the etl container
+==--==--==--==--==--==--==--==--==--==--==
+docker compose up etl
+==--==--==--==--==--==--==--==--==--==--==
+#This pipeline will 
+- Scrape aviation data
+- Clean and Validate 
+- Load into PostegresSQL table -> plane
+==--==--==--==--==--==--==--==--==--==--==
+
+
