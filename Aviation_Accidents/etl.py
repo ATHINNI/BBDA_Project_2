@@ -83,7 +83,7 @@ def scrape_table(url: str, session: requests.Session) -> Optional[pd.DataFrame]:
     html = get_html(url, session)
     tables = pd.read_html(html)
 
-    # διάλεξε τον σωστό πίνακα: αυτόν που έχει header σαν "acc. date" ή "type" κλπ
+    
     for t in tables:
         cols = [str(c).strip().lower() for c in t.columns]
         if any("acc" in c and "date" in c for c in cols) or "type" in cols or "operator" in cols:
@@ -100,15 +100,15 @@ def scrape_page(year: int, page: int, session: requests.Session) -> Optional[pd.
     url = f"https://aviation-safety.net/database/year/{year}/{page}"
     html = get_html(url, session)
 
-    # read all tables then pick the correct one
+    
     tables = pd.read_html(html)
     t = pick_accident_table(tables)
     if t is None or t.empty:
         return None
-        # normalize + rename columns (case/spacing tolerant)
+       
     t.columns = [str(c).strip().lower() for c in t.columns]
 
-    # the site uses "acc. date" (with space), sometimes variations; normalize
+   #find the variations of acc.date
     rename_map = {
         "acc. date": "Accident_Date",
         "acc. date ": "Accident_Date",
@@ -129,7 +129,7 @@ def scrape_page(year: int, page: int, session: requests.Session) -> Optional[pd.
     t["Page"] = page
     t["Source_Url"] = url
 
-    # fat to numeric where possible
+    # transform
     if "Fatalities" in t.columns:
         t["Fatalities"] = pd.to_numeric(
             t["Fatalities"].astype(str).str.replace(r"[^\d]", "", regex=True),
@@ -137,7 +137,7 @@ def scrape_page(year: int, page: int, session: requests.Session) -> Optional[pd.
         )
 
     return t
-
+#creating the data frame 
 def scrape_years(year_start: int = 2000, year_end: int = 2025, out_csv: str = "asn_accidents.csv", polite_sleep: float = 0.4) -> pd.DataFrame:
     frames: List[pd.DataFrame] = []
 
