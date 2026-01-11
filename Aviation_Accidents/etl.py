@@ -5,7 +5,7 @@
 
 # ## Web Scraping
 
-# In[142]:
+# In[3]:
 
 
 import re
@@ -17,7 +17,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 
-# In[143]:
+# In[4]:
 
 
 BASE = "https://aviation-safety.net/database/"
@@ -27,7 +27,7 @@ HEADERS = {
 }
 
 
-# In[144]:
+# In[5]:
 
 
 def get_html(url: str, session: requests.Session, timeout: int = 30) -> str:
@@ -36,7 +36,7 @@ def get_html(url: str, session: requests.Session, timeout: int = 30) -> str:
     return r.text
 
 
-# In[49]:
+# In[6]:
 
 
 def get_max_page(year: int, session: requests.Session) -> int:
@@ -58,7 +58,7 @@ def get_max_page(year: int, session: requests.Session) -> int:
     return max(pages) if pages else 1
 
 
-# In[50]:
+# In[7]:
 
 
 def pick_accident_table(tables: List[pd.DataFrame]) -> Optional[pd.DataFrame]:
@@ -74,7 +74,7 @@ def pick_accident_table(tables: List[pd.DataFrame]) -> Optional[pd.DataFrame]:
     return None
 
 
-# In[51]:
+# In[8]:
 
 
 import pandas as pd
@@ -93,22 +93,22 @@ def scrape_table(url: str, session: requests.Session) -> Optional[pd.DataFrame]:
     return None
 
 
-# In[60]:
+# In[9]:
 
 
 def scrape_page(year: int, page: int, session: requests.Session) -> Optional[pd.DataFrame]:
     url = f"https://aviation-safety.net/database/year/{year}/{page}"
     html = get_html(url, session)
 
-    # read all tables then pick the correct one
+
     tables = pd.read_html(html)
     t = pick_accident_table(tables)
     if t is None or t.empty:
         return None
-        # normalize + rename columns (case/spacing tolerant)
+
     t.columns = [str(c).strip().lower() for c in t.columns]
 
-    # the site uses "acc. date" (with space), sometimes variations; normalize
+
     rename_map = {
         "acc. date": "Accident_Date",
         "acc. date ": "Accident_Date",
@@ -129,7 +129,7 @@ def scrape_page(year: int, page: int, session: requests.Session) -> Optional[pd.
     t["Page"] = page
     t["Source_Url"] = url
 
-    # fat to numeric where possible
+
     if "Fatalities" in t.columns:
         t["Fatalities"] = pd.to_numeric(
             t["Fatalities"].astype(str).str.replace(r"[^\d]", "", regex=True),
@@ -166,7 +166,7 @@ def scrape_years(year_start: int = 2000, year_end: int = 2025, out_csv: str = "a
 
 
 
-# In[145]:
+# In[10]:
 
 
 df = scrape_years(
@@ -186,7 +186,7 @@ df.head()
 
 # The dataset consists of 6860 observations and 10 variables in order to describe aviation accident during 25 years.<br> The variables include categorical and numerical information.
 
-# In[66]:
+# In[11]:
 
 
 df.info()
@@ -255,17 +255,17 @@ df.describe()
 # In[151]:
 
 
-df["Fatalities"] = df["Fatalities"].astype(str)
-df["Fatalities"].value_counts().head(20)
+#df["Fatalities"] = df["Fatalities"].astype(str)
+#df["Fatalities"].value_counts().head(20)
 
 
-# In[154]:
+# In[12]:
 
 
 df.isna().sum()
 
 
-# In[153]:
+# In[13]:
 
 
 df=df.dropna()
@@ -289,7 +289,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import text
 
 engine = create_engine(
-"postgresql+psycopg2://postgres:postgres@db:5433/aviation_db"
+"postgresql+psycopg2://postgres:postgres@37.27.81.12:5433/aviation_db"
 )
 
 con = engine.connect()
@@ -324,7 +324,6 @@ with engine.connect().execution_options(autocommit=True) as conn:
 
 
 
-df["Fatalities"] = pd.to_numeric(df["Fatalities"], errors="coerce").astype("Int64")
 
 
 # In[245]:
@@ -344,7 +343,6 @@ df2 = df.rename(columns={
 })
 
 
-#df["fatalities"] = pd.to_numeric(df["fatalities"], errors="coerce").astype("Int64")
 
 
 # In[129]:
@@ -384,7 +382,7 @@ with engine.connect().execution_options(autocommit=True) as conn:
 df2.head()
 
 
-# In[219]:
+# In[1]:
 
 
 df2.info()
@@ -393,4 +391,5 @@ df2.info()
 # In[ ]:
 
 
+#df["Fatalities"] = pd.to_numeric(df["Fatalities"], errors="coerce").astype("Int64")
 
