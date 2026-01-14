@@ -42,7 +42,7 @@ All rows containing missing or inconsistent values are dropped to ensure data qu
 ________________________________________
 3. PostgreSQL Schema
 The final table is created as plane 
-fatalities is stored as INT because it is a count variable (number of people killed).
+fatalities.
 ________________________________________
 4. Docker Setup
 PostgreSQL runs in a Docker container.
